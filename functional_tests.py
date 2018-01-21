@@ -31,6 +31,7 @@ class NewVisitorTest(unittest.TestCase):
         # He types "Save souls" into a text box (Otis' hobby
         # is converting people to Christianity)
         inputbox.send_keys('Save souls')
+        time.sleep(1)
 
         # When he hits enter, the page updates, and now the page lists
         # "1: Save souls" as an item in a to-do list
@@ -39,20 +40,26 @@ class NewVisitorTest(unittest.TestCase):
 
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-            any(row.text == '1: Save souls' for row in rows),
-			"New to-do item did not appear in table"
-        )
+        self.assertIn('1: Save souls', [row.text for row in rows])
 
         # There is still a text box inviting him to add another item. He
         # enters "Dig rifle pits" (You can never have too many rifle pits)
-        self.fail('Finish the test!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Dig rifle pits')
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
         # The page updates again, and now shows both items on his list
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn('1: Save souls', [row.text for row in rows])
+        self.assertIn('2: Dig rifle pits', [row.text for row in rows])
+
 
         # Otis wonders whether the site will remember his list. Then he sees
         # that the site has generated a unique URL for him -- there is some
         # explanatory text to that effect.
+        self.fail('Finish the test!')
 
         # He visits that URL - his to-do list is still there.
 
