@@ -1,7 +1,10 @@
 from django.test import LiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 import time
+
+MAX_WAIT = 10
 
 
 class NewVisitorTest(LiveServerTestCase):
@@ -11,10 +14,19 @@ class NewVisitorTest(LiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(row_text, [row.text for row in rows])
+    def wait_for_row_in_list_table(self, row_text):
+        start_time = time.time()
+        while True:
+            try:
+                table = self.browser.find_element_by_id('id_list_table')
+                rows = table.find_elements_by_tag_name('tr')
+                self.assertIn(row_text, [row.text for row in rows])
+                return
+
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
 
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Otis has heard about a cool new online to-do app. He goes
@@ -36,31 +48,67 @@ class NewVisitorTest(LiveServerTestCase):
         # He types "Save souls" into a text box (Otis' hobby
         # is converting people to Christianity)
         inputbox.send_keys('Save souls')
-        time.sleep(1)
 
         # When he hits enter, the page updates, and now the page lists
         # "1: Save souls" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
-        self.check_for_row_in_list_table('1: Save souls')
+        self.wait_for_row_in_list_table('1: Save souls')
 
         # There is still a text box inviting him to add another item. He
         # enters "Dig rifle pits" (You can never have too many rifle pits)
         inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Dig rifle pits')
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
 
         # The page updates again, and now shows both items on his list
-        self.check_for_row_in_list_table('1: Save souls')
-        self.check_for_row_in_list_table('2: Dig rifle pits')
-
-        # Otis wonders whether the site will remember his list. Then he sees
-        # that the site has generated a unique URL for him -- there is some
-        # explanatory text to that effect.
-        self.fail('Finish the test!')
-
-        # He visits that URL - his to-do list is still there.
+        self.wait_for_row_in_list_table('1: Save souls')
+        self.wait_for_row_in_list_table('2: Dig rifle pits')
 
         # Satisfied, he goes back to reading his Bible
 
+    def test_multiple_users_can_start_lists_at_different_urls(self):
+        # Otis starts a new to-do list
+        self.browser.get(self.live_server_url)
+
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Save souls')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Save souls')
+
+        # He notices that his list has a unique URL
+        otis_list_url = self.browser.current_url
+        self.assertRegex(otis_list_url, '/lists/.+')
+
+        # Now a new user, Lizzie, comes along to the site
+
+        ## We use a new browser session to make sure that no information
+        ## of Otis' is coming through from cookies etc
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # Lizzie visits the home page. There is no sign of Otis'
+        # list
+        self.browser.get(self.live_server - url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Save souls', page_text)
+        self.assertNotIn('Dig rifle pits', page_text)
+
+        # Lizzie starts a new list by entering a new item. She
+        # is more practical than Otis...
+        inputbox = self.browser.find_element_by_id('id_new_item')
+
+        inputbox.send_keys('Pay Otis\' bills')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: Pay Otis\' bills')
+
+        # Lizzie gets her own unique URL
+        lizzie_list_url = self.browser.current_url
+        self.assertRegex(lizzie_list_url, '/lists/.+')
+        self.assertNotEqual(lizzie_list_url, otis_list_url)
+
+        # Again, there is no trace of Otis' list
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Save souls', page_text)
+        self.assertNotIn('Dig rifle pits', page_text)
+
+        # Satisfied, they both go back to reading the Bible
