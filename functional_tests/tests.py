@@ -88,7 +88,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Lizzie visits the home page. There is no sign of Otis'
         # list
-        self.browser.get(self.live_server - url)
+        self.browser.get(self.live_server_url)
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Save souls', page_text)
         self.assertNotIn('Dig rifle pits', page_text)
