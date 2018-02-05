@@ -1,3 +1,1 @@
-Django==1.11.9
-pytz==2017.3
-selenium==3.8.1
+django==1.11
