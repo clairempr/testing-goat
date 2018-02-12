@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cc0c4654-8c9e-4b55-9b8e-f03c6abba0bb" name="Default" comment="" />
+    <list default="true" id="cc0c4654-8c9e-4b55-9b8e-f03c6abba0bb" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/superlists/settings.py" afterPath="$PROJECT_DIR$/superlists/settings.py" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,7 +33,7 @@
         <entry file="file://$PROJECT_DIR$/superlists/settings.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="308">
-              <caret line="24" column="44" lean-forward="true" selection-start-line="24" selection-start-column="44" selection-end-line="24" selection-end-column="44" />
+              <caret line="24" column="53" lean-forward="false" selection-start-line="24" selection-start-column="53" selection-end-line="24" selection-end-column="53" />
               <folding />
             </state>
           </provider>
@@ -562,7 +564,7 @@
     <entry file="file://$PROJECT_DIR$/superlists/settings.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="308">
-          <caret line="24" column="44" lean-forward="true" selection-start-line="24" selection-start-column="44" selection-end-line="24" selection-end-column="44" />
+          <caret line="24" column="53" lean-forward="false" selection-start-line="24" selection-start-column="53" selection-end-line="24" selection-end-column="53" />
           <folding />
         </state>
       </provider>
